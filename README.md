@@ -61,33 +61,36 @@ Skriptet `scripts/build-model.mjs` leser `models/source/nih-22787-heart.glb` og 
 
 ## Publisering
 
-Bygget i `dist/` kan legges på en hvilken som helst statisk vert.
-
-**Siden er ikke publisert.** Oppdraget var å publisere til Cloudflare Pages hvis wrangler var
-konfigurert. Wrangler var ikke satt opp i prosjektet. Cloudflare-nøkkelen i arbeidsmiljøet ga tilgang til
-Workers og R2, men ikke til Pages (API-et svarte «Authentication error»). Derfor stoppet arbeidet etter
-bygget.
-
-### Cloudflare Pages
+Siden er publisert på **https://puls.kerlabs.no**. Den kjører som Cloudflare Worker med navnet `puls`,
+med eget domene i sonen kerlabs.no, slik som de andre undersidene på kerlabs.no.
 
 ```bash
-npm run build
-npx wrangler login                    # eller sett CLOUDFLARE_API_TOKEN med tilgangen «Pages: Edit»
-npx wrangler pages project create puls-og-blodtrykk --production-branch main
-npx wrangler pages deploy dist --project-name puls-og-blodtrykk
+npm run deploy
 ```
 
-Siden blir da tilgjengelig på `https://puls-og-blodtrykk.pages.dev`. Du kan også koble GitHub-repoet til
-Pages i Cloudflare-dashbordet, med byggekommandoen `npm run build` og mappen `dist`.
+Kommandoen bygger siden, legger filene i `dist/` inn i Workeren (`scripts/make-worker.mjs`) og publiserer
+med wrangler. Oppsettet står i `wrangler.jsonc`. Wrangler trenger en Cloudflare-nøkkel med tilgang til
+Workers og til sonen kerlabs.no, enten via `npx wrangler login` eller `CLOUDFLARE_API_TOKEN`.
 
-### Cloudflare Workers, som alternativ
+Hvorfor filene ligger i selve Workeren:
 
-Nøkkelen som finnes, har tilgang til Workers. Cloudflare anbefaler nå Workers med statiske filer også for
-rene nettsider:
+- Cloudflare Pages var ikke mulig. Nøkkelen i arbeidsmiljøet hadde ikke tilgang til Pages.
+- Workers med statiske filer (`assets`) var heller ikke mulig derfra. Den opplastingen bruker en egen
+  midlertidig nøkkel, og proxyen i arbeidsmiljøet byttet den ut med API-nøkkelen, så opplastingen fikk
+  401.
+- Workeren serverer derfor filene fra minnet. Den er 2,4 MB, eller 1,4 MB komprimert, og starter på
+  1 ms. Grensen er 3 MB på gratisplanen. Svarene har ETag, lang hurtigbuffer for filene i `assets/` og
+  Brotli-komprimering fra Cloudflare.
+
+Fra en vanlig maskin kan du like gjerne bruke Workers med statiske filer eller Pages. Bygget i `dist/`
+kan legges på en hvilken som helst statisk vert.
 
 ```bash
-npm run build
-npx wrangler deploy --name puls-og-blodtrykk --assets dist --compatibility-date 2026-11-01
+# Workers med statiske filer (bytt main i wrangler.jsonc med "assets": { "directory": "./dist" })
+npx wrangler deploy
+
+# Cloudflare Pages
+npx wrangler pages deploy dist --project-name puls-og-blodtrykk
 ```
 
 ## Valg som er tatt
@@ -296,5 +299,4 @@ tests/                  Playwright-tester og skjermbildeskript
 ## Hva som gjenstår
 
 - Sammenligne med den ekte prototypen når den finnes, og justere tekster og tall.
-- Publisere, se over.
 - Teste på ekte mobiltelefoner. Testene er kjørt i Chromium med WebGL i programvare.

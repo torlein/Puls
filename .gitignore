@@ -7,3 +7,4 @@ screenshots/*.png
 .wrangler/
 *.log
 .DS_Store
+worker/files.generated.js

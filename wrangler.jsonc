@@ -1,0 +1,12 @@
+{
+  // Statisk side på Cloudflare Workers, med eget domene.
+  // Publiser: npm run deploy
+  // Filene i dist/ legges inn i Workeren av scripts/make-worker.mjs.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "puls",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-11-01",
+  "routes": [{ "pattern": "puls.kerlabs.no", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}
