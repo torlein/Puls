@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Puls og blodtrykk</title>
+    <meta
+      name="description"
+      content="Puls er hvor ofte hjertet slår. Blodtrykk er hvor hardt blodet presser mot årene. En interaktiv forklaring med 3D-modell av hjertet og arteriene."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf4ee" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151113" />
+    <meta property="og:title" content="Puls og blodtrykk" />
+    <meta property="og:description" content="Puls er hvor ofte. Blodtrykk er hvor hardt." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nb_NO" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/models/heart.glb" as="fetch" type="model/gltf-binary" crossorigin="anonymous" />
+  </head>
+  <body>
+    <a class="skip" href="#modell">Hopp til 3D-modellen</a>
+
+    <header class="masthead">
+      <p class="brand">Puls og blodtrykk</p>
+      <p class="plate">Et atlas over ett hjerteslag</p>
+    </header>
+
+    <main>
+      <section class="thesis" aria-labelledby="tese">
+        <h1 id="tese">
+          <span class="line">Puls er hvor <em class="often">ofte<span class="strike" aria-hidden="true"></span></em>.</span>
+          <span class="line">Blodtrykk er hvor <em class="hard" data-text="hardt."><span>hardt<span class="dot">.</span></span></em></span>
+        </h1>
+        <p class="lede">
+          To tall fra det samme hjerteslaget. Pulsen teller slagene. Blodtrykket måler hvor hardt blodet presser mot
+          veggen i arteriene. De henger sammen, men de forteller ulike ting.
+        </p>
+        <p class="now" aria-live="off">
+          <span class="now-item pulse"><span class="now-label">Puls nå</span> <b data-live="hr">66</b> slag/min</span>
+          <span class="now-item bp"><span class="now-label">Blodtrykk nå</span> <b data-live="bp">116/68</b> mmHg</span>
+        </p>
+      </section>
+
+      <section id="modell" class="model" aria-labelledby="modell-tittel">
+        <header class="section-head">
+          <p class="kicker">Fig. 1</p>
+          <h2 id="modell-tittel">Følg ett hjerteslag</h2>
+          <p class="section-intro">
+            Hjertet slår, og en trykkbølge går ut gjennom arteriene. Klikk på en del av modellen eller på en etikett for
+            å se nærmere.
+          </p>
+        </header>
+        <div class="model-grid">
+          <div class="stage" id="stage">
+            <canvas id="scene" role="img" aria-label="3D-modell av hjertet, aorta og arterien ut i venstre arm. Velg del med knappene i panelet."></canvas>
+            <div class="labels" id="labels"></div>
+            <p class="stage-status" id="stage-status" role="status">Laster 3D-modellen</p>
+            <div class="stage-tools" role="toolbar" aria-label="Kamerakontroller">
+              <button type="button" class="tool" id="btn-overview" aria-label="Vis oversikt">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8V3h5M17 8V3h-5M3 12v5h5M17 12v5h-5" /></svg>
+                <span>Oversikt</span>
+              </button>
+              <button type="button" class="tool icon" id="btn-zoom-out" aria-label="Zoom ut">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10h10" /></svg>
+              </button>
+              <button type="button" class="tool icon" id="btn-zoom-in" aria-label="Zoom inn">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10h10M10 5v10" /></svg>
+              </button>
+              <button type="button" class="tool icon pause-toggle" id="btn-pause" aria-label="Pause animasjonen" aria-pressed="false">
+                <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" /></svg>
+                <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path class="fill" d="M7 4.5v11l9-5.5z" /></svg>
+              </button>
+            </div>
+            <p class="stage-hint" aria-hidden="true">Dra for å rotere. Knip for å zoome.</p>
+          </div>
+          <aside class="panel" aria-label="Detaljer om valgt del">
+            <div class="tabs" role="tablist" aria-label="Deler av modellen" id="part-tabs"></div>
+            <div class="part-panel" role="tabpanel" id="part-panel" tabindex="0"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="monitor" class="monitor" aria-labelledby="monitor-tittel">
+        <header class="section-head">
+          <p class="kicker">Fig. 2</p>
+          <h2 id="monitor-tittel">Monitoren</h2>
+          <p class="section-intro">
+            Kurven viser trykket i arteriene, slag for slag. Avstanden mellom toppene er pulsen. Høyden fra bunn til topp
+            er blodtrykket. Endre verdiene og se hva som skjer, også i 3D-modellen over.
+          </p>
+        </header>
+
+        <div class="readouts">
+          <div class="readout pulse">
+            <p class="readout-label">Puls</p>
+            <p class="readout-value"><span data-live="hr">66</span> <span class="unit">slag/min</span></p>
+            <p class="tag" data-live="hr-tag" data-tone="normal">Normal hvilepuls</p>
+          </div>
+          <div class="readout bp">
+            <p class="readout-label">Blodtrykk</p>
+            <p class="readout-value"><span data-live="bp">116/68</span> <span class="unit">mmHg</span></p>
+            <p class="tag" data-live="bp-tag" data-tone="normal">Ikke forhøyet</p>
+          </div>
+        </div>
+
+        <div class="screen">
+          <canvas
+            id="monitor-canvas"
+            role="img"
+            aria-label="Trykkurve på EKG-papir. Kurven stiger raskt i hvert slag og synker langsomt mellom slagene."
+          ></canvas>
+          <button type="button" class="tool icon pause-toggle screen-pause" id="btn-pause-monitor" aria-label="Pause animasjonen" aria-pressed="false">
+            <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" /></svg>
+            <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path class="fill" d="M7 4.5v11l9-5.5z" /></svg>
+          </button>
+        </div>
+
+        <div class="controls">
+          <div class="slider pulse">
+            <div class="slider-head"><label for="s-hr">Puls</label><output for="s-hr" id="o-hr">66 slag/min</output></div>
+            <input type="range" id="s-hr" min="40" max="180" step="1" value="66" />
+            <div class="slider-scale" aria-hidden="true"><span>40</span><span>180</span></div>
+          </div>
+          <div class="slider bp">
+            <div class="slider-head"><label for="s-sys">Systolisk trykk</label><output for="s-sys" id="o-sys">116 mmHg</output></div>
+            <input type="range" id="s-sys" min="90" max="200" step="1" value="116" />
+            <div class="slider-scale" aria-hidden="true"><span>90</span><span>200</span></div>
+          </div>
+          <div class="slider bp">
+            <div class="slider-head"><label for="s-dia">Diastolisk trykk</label><output for="s-dia" id="o-dia">68 mmHg</output></div>
+            <input type="range" id="s-dia" min="50" max="120" step="1" value="68" />
+            <div class="slider-scale" aria-hidden="true"><span>50</span><span>120</span></div>
+          </div>
+          <p class="controls-note">Det er alltid minst 20 mmHg mellom systolisk og diastolisk trykk.</p>
+        </div>
+
+        <div class="scenarios">
+          <h3 class="minor">Situasjoner</h3>
+          <div class="scenario-list" role="group" aria-label="Velg en situasjon" id="scenario-list"></div>
+          <p class="scenario-text" id="scenario-text" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="compare" aria-labelledby="sammenligning">
+        <header class="section-head">
+          <p class="kicker">Fig. 3</p>
+          <h2 id="sammenligning">Side om side</h2>
+        </header>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <td></td>
+              <th scope="col" class="pulse">Puls</th>
+              <th scope="col" class="bp">Blodtrykk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Hva det er</th>
+              <td data-label="Puls">Hvor mange ganger hjertet slår i minuttet.</td>
+              <td data-label="Blodtrykk">Hvor hardt blodet presser mot veggen i arteriene.</td>
+            </tr>
+            <tr>
+              <th scope="row">Enhet</th>
+              <td data-label="Puls">Slag per minutt.</td>
+              <td data-label="Blodtrykk">Millimeter kvikksølv, mmHg.</td>
+            </tr>
+            <tr>
+              <th scope="row">Tallet</th>
+              <td data-label="Puls">Ett tall, for eksempel 66.</td>
+              <td data-label="Blodtrykk">
+                To tall, for eksempel 116/68. Det første er det systoliske trykket, når hjertet trekker seg sammen. Det
+                andre er det diastoliske trykket, når hjertet hviler.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Normalt i hvile</th>
+              <td data-label="Puls">60 til 100 slag per minutt. Veltrente har ofte lavere.</td>
+              <td data-label="Blodtrykk">Under 120/70 er ikke forhøyet.</td>
+            </tr>
+            <tr>
+              <th scope="row">Slik måles det</th>
+              <td data-label="Puls">Kjenn etter på håndleddet eller halsen, og tell.</td>
+              <td data-label="Blodtrykk">Med en mansjett rundt overarmen.</td>
+            </tr>
+            <tr>
+              <th scope="row">Går opp ved</th>
+              <td data-label="Puls">Trening, feber, stress, væsketap og koffein.</td>
+              <td data-label="Blodtrykk">Trening, stress, smerte og alder. Over tid også av mye salt og lite bevegelse.</td>
+            </tr>
+            <tr>
+              <th scope="row">Merker du det?</th>
+              <td data-label="Puls">Ofte. Du kan kjenne hjertet slå.</td>
+              <td data-label="Blodtrykk">Sjelden. Høyt blodtrykk gir vanligvis ingen plager. Derfor må det måles.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="measure" aria-labelledby="slik-maler-du">
+        <header class="section-head">
+          <p class="kicker">Fig. 4</p>
+          <h2 id="slik-maler-du">Slik måler du riktig</h2>
+        </header>
+        <div class="measure-grid">
+          <article class="card bp">
+            <h3>Blodtrykk</h3>
+            <ol>
+              <li>Ikke tren, røyk eller drikk kaffe den siste halvtimen før.</li>
+              <li>Sitt stille i minst 5 minutter. Ha ryggen mot stolen og føttene i gulvet. Ikke kryss beina.</li>
+              <li>Legg armen på et bord, så mansjetten er i hjertehøyde.</li>
+              <li>Bruk riktig mansjettstørrelse. En for liten mansjett gir for høye tall.</li>
+              <li>Ikke snakk mens du måler.</li>
+              <li>Mål tre ganger med 1 til 2 minutter mellom. Bruk snittet av de to siste målingene.</li>
+              <li>Hjemme kan du måle morgen og kveld i en uke. Det gir et bedre bilde enn én måling hos legen.</li>
+            </ol>
+          </article>
+          <article class="card pulse">
+            <h3>Puls</h3>
+            <ol>
+              <li>Sitt rolig i noen minutter først.</li>
+              <li>Legg pekefinger og langfinger på innsiden av håndleddet, på tommelsiden. Ikke bruk tommelen. Den har sin egen puls.</li>
+              <li>Tell slagene i 15 sekunder og gang med 4.</li>
+              <li>Kjennes pulsen ujevn, tell i et helt minutt.</li>
+              <li>Mål helst om morgenen, før du står opp. Da er hvilepulsen lettest å sammenligne fra dag til dag.</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="reference" aria-labelledby="referanseverdier">
+        <header class="section-head">
+          <p class="kicker">Fig. 5</p>
+          <h2 id="referanseverdier">Referanseverdier</h2>
+          <p class="section-intro">For voksne, målt i hvile. Kontrollert mot kildene 8. november 2026.</p>
+        </header>
+        <div class="reference-grid">
+          <div class="ref-block bp">
+            <h3>Blodtrykk hos legen</h3>
+            <table class="ref-table">
+              <thead>
+                <tr><th scope="col">Kategori</th><th scope="col">Systolisk</th><th scope="col"></th><th scope="col">Diastolisk</th></tr>
+              </thead>
+              <tbody>
+                <tr data-tone="low"><th scope="row">Lavt</th><td>under 90</td><td class="or">eller</td><td>under 60</td></tr>
+                <tr data-tone="normal"><th scope="row">Ikke forhøyet</th><td>under 120</td><td class="or">og</td><td>under 70</td></tr>
+                <tr data-tone="elevated"><th scope="row">Forhøyet</th><td>120 til 139</td><td class="or">eller</td><td>70 til 89</td></tr>
+                <tr data-tone="high"><th scope="row">Høyt blodtrykk</th><td>140 eller mer</td><td class="or">eller</td><td>90 eller mer</td></tr>
+              </tbody>
+            </table>
+            <p class="ref-note">
+              Kategoriene følger ESC 2024. Målt hjemme regnes 135/85 eller mer som høyt. Ved døgnmåling er grensen 130/80
+              for snittet over hele døgnet. Grensen for lavt blodtrykk er fra Store medisinske leksikon.
+            </p>
+          </div>
+          <div class="ref-block pulse">
+            <h3>Hvilepuls</h3>
+            <table class="ref-table">
+              <thead>
+                <tr><th scope="col">Kategori</th><th scope="col">Slag per minutt</th></tr>
+              </thead>
+              <tbody>
+                <tr data-tone="low"><th scope="row">Lav</th><td>under 60</td></tr>
+                <tr data-tone="normal"><th scope="row">Normal</th><td>60 til 100</td></tr>
+                <tr data-tone="high"><th scope="row">Høy</th><td>over 100</td></tr>
+              </tbody>
+            </table>
+            <p class="ref-note">
+              Kildene trekker grensen for lav puls litt ulikt. Noen bruker under 50. Veltrente har ofte hvilepuls under 50
+              til 60 uten at noe er galt. Under trening er høy puls normalt.
+            </p>
+          </div>
+        </div>
+        <h3 class="minor">Kilder</h3>
+        <ol class="sources">
+          <li>
+            McEvoy JW, McCarthy CP, Bruno RM mfl. 2024 ESC Guidelines for the management of elevated blood pressure and
+            hypertension. <i>European Heart Journal</i> 2024;45(38):3912. Tabell 5 og avsnitt 5.2.
+            <a href="https://doi.org/10.1093/eurheartj/ehae178" rel="noopener">doi.org/10.1093/eurheartj/ehae178</a>
+          </li>
+          <li>
+            Norsk elektronisk legehåndbok. Hypertensjon. Revidert august 2026.
+            <a href="https://legehandboka.no/handboken/kliniske-kapitler/hjertekar/tilstander-og-sykdommer/ulike-sykdommer/hypertensjon" rel="noopener">legehandboka.no</a>
+          </li>
+          <li>
+            Norsk Helseinformatikk. Høyt blodtrykk, oversikt. Oppdatert august 2026.
+            <a href="https://nhi.no/sykdommer/hjertekar/hoyt-blodtrykk-hypertensjon/hypertensjon-oversikt" rel="noopener">nhi.no</a>
+          </li>
+          <li>
+            Norsk Helseinformatikk. Langsom puls (bradykardi) og Hurtig puls (takykardi).
+            <a href="https://nhi.no/sykdommer/hjertekar/hjertearytmier/bradykardier-langsom-puls" rel="noopener">nhi.no</a>
+          </li>
+          <li>
+            Norsk Helseinformatikk. Hva bør pulsen ligge på? Om å telle pulsen i 15 sekunder.
+            <a href="https://nhi.no/trening/aktivitet-og-helse/treningsrad-generelle/trening-hvordan-trene/hva-bor-pulsen-ligge-pa" rel="noopener">nhi.no</a>
+          </li>
+          <li>
+            Store medisinske leksikon. Lavt blodtrykk. Redigert september 2025.
+            <a href="https://sml.snl.no/lavt_blodtrykk" rel="noopener">sml.snl.no</a>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="disclaimer">
+        <strong>Viktig.</strong> Siden forklarer hvordan puls og blodtrykk virker. Den erstatter ikke undersøkelse eller råd
+        fra lege. Har du brystsmerter, tung pust eller besvimer, ring 113. Er du bekymret for pulsen eller blodtrykket ditt,
+        snakk med fastlegen.
+      </p>
+      <p class="credits">
+        3D-modell av hjertet: «Human Heart 3d Model» fra Biology Notes Online, publisert på
+        <a href="https://3d.nih.gov/entries/22787" rel="noopener">NIH 3D</a> (3DPX-022787). Lisens
+        <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.no" rel="noopener">CC0 1.0</a>. Modellen er forenklet og
+        tilpasset for denne siden. Arteriene, kroppen, mansjetten og håndleddet er bygget i kode. Skrifter: Schibsted Grotesk,
+        Newsreader og IBM Plex Mono, alle med SIL Open Font License. Laget med Three.js.
+      </p>
+    </footer>
+
+    <noscript><p class="noscript">Siden trenger JavaScript for 3D-modellen og monitoren. Tekstene og referanseverdiene kan leses uten.</p></noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

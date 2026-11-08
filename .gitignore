@@ -1,0 +1,9 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+screenshots/*.png
+!screenshots/.gitkeep
+.wrangler/
+*.log
+.DS_Store
